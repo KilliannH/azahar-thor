@@ -70,17 +70,31 @@ android {
         versionName = getGitVersion()
 
         ndk {
-            //noinspection ChromeOsAbiSupport
-            abiFilters += abiFilter
+            //=======================================================
+            // OPTIMISATION 1 : Uniquement ARM64 pour le 8 Gen 2
+            //=======================================================
+            abiFilters.clear()
+            abiFilters += listOf("arm64-v8a")
         }
 
         externalNativeBuild {
             cmake {
-                arguments(
-                    "-DENABLE_QT=0", // Don't use QT
-                    "-DENABLE_SDL2=0", // Don't use SDL
-                    "-DANDROID_ARM_NEON=true", // cryptopp requires Neon to work
-                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON" // Support Android 15 16KiB page sizes
+                arguments += listOf(
+                    "-DANDROID_ARM_NEON=TRUE",
+                    "-DANDROID_STL=c++_shared",
+                    "-DCMAKE_BUILD_TYPE=Release"
+                )
+
+                cFlags += listOf(
+                    "-O3",
+                    "-ffast-math",
+                    "-march=armv8.2-a+fp16+dotprod+crypto"
+                )
+
+                cppFlags += listOf(
+                    "-O3",
+                    "-ffast-math",
+                    "-march=armv8.2-a+fp16+dotprod+crypto"
                 )
             }
         }
@@ -116,6 +130,35 @@ android {
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
+            //=======================================================
+            // OPTIMISATION 3 : Pas de symboles debug en release
+            //=======================================================
+            ndk {
+                debugSymbolLevel = "NONE"
+            }
+        }
+
+        // OPTIONNEL : Build type pour profiling
+        create("profile") {
+            initWith(getByName("release"))
+            isDebuggable = true
+            isProfileable = true
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
+        }
+
+        //=======================================================
+        // OPTIMISATION 4 : Exclusion des architectures inutiles
+        //=======================================================
+        packaging {
+            resources {
+                excludes += listOf(
+                    "lib/armeabi-v7a/**",
+                    "lib/x86/**",
+                    "lib/x86_64/**"
+                )
+            }
         }
 
         // builds a release build that doesn't need signing

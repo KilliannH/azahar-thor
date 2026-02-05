@@ -9,6 +9,7 @@
 #include "audio_core/audio_types.h"
 #include "audio_core/cubeb_sink.h"
 #include "common/logging/log.h"
+#include "common/cpu_affinity.h"
 
 namespace AudioCore {
 
@@ -116,6 +117,11 @@ void CubebSink::SetCallback(std::function<void(s16*, std::size_t)> cb) {
 
 long CubebSink::Impl::DataCallback(cubeb_stream* stream, void* user_data, const void* input_buffer,
                                    void* output_buffer, long num_frames) {
+    static bool affinity_set = false;
+    if (!affinity_set) {
+        Common::SetLittleCoreAffinity(); // <-- Little cores suffisent
+        affinity_set = true;
+    }
     auto* impl = static_cast<Impl*>(user_data);
     auto* buffer = static_cast<s16*>(output_buffer);
 

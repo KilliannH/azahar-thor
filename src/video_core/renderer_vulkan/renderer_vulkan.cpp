@@ -19,6 +19,7 @@
 #include "video_core/host_shaders/vulkan_present_frag.h"
 #include "video_core/host_shaders/vulkan_present_interlaced_frag.h"
 #include "video_core/host_shaders/vulkan_present_vert.h"
+#include "common/cpu_affinity.h"
 
 #include <vk_mem_alloc.h>
 
@@ -909,6 +910,11 @@ void RendererVulkan::DrawScreens(Frame* frame, const Layout::FramebufferLayout& 
 }
 
 void RendererVulkan::SwapBuffers() {
+    static bool affinity_set = false;
+    if (!affinity_set) {
+        Common::SetBigCoreAffinity(); // <-- AJOUTER ICI
+        affinity_set = true;
+    }
     system.perf_stats->StartSwap();
     const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
     PrepareRendertarget();

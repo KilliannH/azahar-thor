@@ -53,6 +53,7 @@
 #include "video_core/custom_textures/custom_tex_manager.h"
 #include "video_core/gpu.h"
 #include "video_core/renderer_base.h"
+#include "common/cpu_affinity.h"
 
 namespace Core {
 
@@ -78,6 +79,7 @@ System::System() : movie{*this}, cheat_engine{*this} {}
 System::~System() = default;
 
 System::ResultStatus System::RunLoop(bool tight_loop) {
+    Common::SetBigCoreAffinity();
     status = ResultStatus::Success;
     if (!IsPoweredOn()) {
         return ResultStatus::ErrorNotInitialized;

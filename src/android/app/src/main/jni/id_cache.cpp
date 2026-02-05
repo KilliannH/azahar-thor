@@ -49,113 +49,115 @@ static std::unordered_map<Service::AM::InstallStatus, jobject> s_java_cia_instal
 
 namespace IDCache {
 
-JNIEnv* GetEnvForThread() {
-    thread_local static struct OwnedEnv {
-        OwnedEnv() {
-            status = s_java_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
-            if (status == JNI_EDETACHED)
-                s_java_vm->AttachCurrentThread(&env, nullptr);
-        }
+    JNIEnv* GetEnvForThread() {
+        thread_local static struct OwnedEnv {
+            OwnedEnv() {
+                status = s_java_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+                if (status == JNI_EDETACHED)
+                    s_java_vm->AttachCurrentThread(&env, nullptr);
+            }
 
-        ~OwnedEnv() {
-            if (status == JNI_EDETACHED)
-                s_java_vm->DetachCurrentThread();
-        }
+            ~OwnedEnv() {
+                if (status == JNI_EDETACHED)
+                    s_java_vm->DetachCurrentThread();
+            }
 
-        int status;
-        JNIEnv* env = nullptr;
-    } owned;
-    return owned.env;
-}
+            int status;
+            JNIEnv* env = nullptr;
+        } owned;
+        return owned.env;
+    }
 
-jclass GetCoreErrorClass() {
-    return s_core_error_class;
-}
+    jclass GetCoreErrorClass() {
+        return s_core_error_class;
+    }
 
-jclass GetSavestateInfoClass() {
-    return s_savestate_info_class;
-}
+    jclass GetSavestateInfoClass() {
+        return s_savestate_info_class;
+    }
 
-jclass GetNativeLibraryClass() {
-    return s_native_library_class;
-}
+    jclass GetNativeLibraryClass() {
+        return s_native_library_class;
+    }
 
-jmethodID GetOnCoreError() {
-    return s_on_core_error;
-}
+    jmethodID GetOnCoreError() {
+        return s_on_core_error;
+    }
 
-jmethodID GetIsPortraitMode() {
-    return s_is_portrait_mode;
-}
+    jmethodID GetIsPortraitMode() {
+        return s_is_portrait_mode;
+    }
 
-jmethodID GetLandscapeScreenLayout() {
-    return s_landscape_screen_layout;
-}
+    jmethodID GetLandscapeScreenLayout() {
+        return s_landscape_screen_layout;
+    }
 
-jmethodID GetPortraitScreenLayout() {
-    return s_portrait_screen_layout;
-}
+    jmethodID GetPortraitScreenLayout() {
+        return s_portrait_screen_layout;
+    }
 
-jmethodID GetExitEmulationActivity() {
-    return s_exit_emulation_activity;
-}
+    jmethodID GetExitEmulationActivity() {
+        return s_exit_emulation_activity;
+    }
 
-jmethodID GetRequestCameraPermission() {
-    return s_request_camera_permission;
-}
+    jmethodID GetRequestCameraPermission() {
+        return s_request_camera_permission;
+    }
 
-jmethodID GetRequestMicPermission() {
-    return s_request_mic_permission;
-}
+    jmethodID GetRequestMicPermission() {
+        return s_request_mic_permission;
+    }
 
-jclass GetCheatClass() {
-    return s_cheat_class;
-}
+    jclass GetCheatClass() {
+        return s_cheat_class;
+    }
 
-jfieldID GetCheatPointer() {
-    return s_cheat_pointer;
-}
+    jfieldID GetCheatPointer() {
+        return s_cheat_pointer;
+    }
 
-jmethodID GetCheatConstructor() {
-    return s_cheat_constructor;
-}
+    jmethodID GetCheatConstructor() {
+        return s_cheat_constructor;
+    }
 
-jfieldID GetGameInfoPointer() {
-    return s_game_info_pointer;
-}
+    jfieldID GetGameInfoPointer() {
+        return s_game_info_pointer;
+    }
 
-jclass GetDiskCacheProgressClass() {
-    return s_disk_cache_progress_class;
-}
+    jclass GetDiskCacheProgressClass() {
+        return s_disk_cache_progress_class;
+    }
 
-jmethodID GetDiskCacheLoadProgress() {
-    return s_disk_cache_load_progress;
-}
+    jmethodID GetDiskCacheLoadProgress() {
+        return s_disk_cache_load_progress;
+    }
 
-jmethodID GetCompressProgressMethod() {
-    return s_compress_progress_method;
-}
+    jmethodID GetCompressProgressMethod() {
+        return s_compress_progress_method;
+    }
 
-jobject GetJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
-    const auto it = s_java_load_callback_stages.find(stage);
-    ASSERT_MSG(it != s_java_load_callback_stages.end(), "Invalid LoadCallbackStage: {}", stage);
+    jobject GetJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
+        const auto it = s_java_load_callback_stages.find(stage);
+        ASSERT_MSG(it != s_java_load_callback_stages.end(), "Invalid LoadCallbackStage: {}", stage);
 
-    return it->second;
-}
+        return it->second;
+    }
 
-jclass GetCiaInstallHelperClass() {
-    return s_cia_install_helper_class;
-}
+    jclass GetCiaInstallHelperClass() {
+        return s_cia_install_helper_class;
+    }
 
-jmethodID GetCiaInstallHelperSetProgress() {
-    return s_cia_install_helper_set_progress;
-}
-jobject GetJavaCiaInstallStatus(Service::AM::InstallStatus status) {
-    const auto it = s_java_cia_install_status.find(status);
-    ASSERT_MSG(it != s_java_cia_install_status.end(), "Invalid InstallStatus: {}", status);
+    jmethodID GetCiaInstallHelperSetProgress() {
+        return s_cia_install_helper_set_progress;
+    }
 
-    return it->second;
-}
+    jobject GetJavaCiaInstallStatus(Service::AM::InstallStatus status) {
+        const auto it = s_java_cia_install_status.find(status);
+        ASSERT_MSG(it != s_java_cia_install_status.end(), "Invalid InstallStatus: {}", status);
+
+        return it->second;
+    }
+
 } // namespace IDCache
 
 #ifdef __cplusplus
@@ -171,23 +173,23 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
     // Initialize misc classes
     s_savestate_info_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("org/citra/citra_emu/NativeLibrary$SaveStateInfo")));
+            env->NewGlobalRef(env->FindClass("org/citra/citra_emu/NativeLibrary$SaveStateInfo")));
     s_core_error_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("org/citra/citra_emu/NativeLibrary$CoreError")));
+            env->NewGlobalRef(env->FindClass("org/citra/citra_emu/NativeLibrary$CoreError")));
 
     // Initialize NativeLibrary
     const jclass native_library_class = env->FindClass("org/citra/citra_emu/NativeLibrary");
     s_native_library_class = reinterpret_cast<jclass>(env->NewGlobalRef(native_library_class));
     s_on_core_error = env->GetStaticMethodID(
-        s_native_library_class, "onCoreError",
-        "(Lorg/citra/citra_emu/NativeLibrary$CoreError;Ljava/lang/String;)Z");
+            s_native_library_class, "onCoreError",
+            "(Lorg/citra/citra_emu/NativeLibrary$CoreError;Ljava/lang/String;)Z");
     s_is_portrait_mode = env->GetStaticMethodID(s_native_library_class, "isPortraitMode", "()Z");
     s_exit_emulation_activity =
-        env->GetStaticMethodID(s_native_library_class, "exitEmulationActivity", "(I)V");
+            env->GetStaticMethodID(s_native_library_class, "exitEmulationActivity", "(I)V");
     s_request_camera_permission =
-        env->GetStaticMethodID(s_native_library_class, "requestCameraPermission", "()Z");
+            env->GetStaticMethodID(s_native_library_class, "requestCameraPermission", "()Z");
     s_request_mic_permission =
-        env->GetStaticMethodID(s_native_library_class, "requestMicPermission", "()Z");
+            env->GetStaticMethodID(s_native_library_class, "requestMicPermission", "()Z");
     env->DeleteLocalRef(native_library_class);
 
     // Initialize Cheat
@@ -204,22 +206,22 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
     // Initialize Disk Shader Cache Progress Dialog
     s_disk_cache_progress_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("org/citra/citra_emu/utils/DiskShaderCacheProgress")));
+            env->NewGlobalRef(env->FindClass("org/citra/citra_emu/utils/DiskShaderCacheProgress")));
     jclass load_callback_stage_class =
-        env->FindClass("org/citra/citra_emu/utils/DiskShaderCacheProgress$LoadCallbackStage");
+            env->FindClass("org/citra/citra_emu/utils/DiskShaderCacheProgress$LoadCallbackStage");
     s_disk_cache_load_progress = env->GetStaticMethodID(
-        s_disk_cache_progress_class, "loadProgress",
-        "(Lorg/citra/citra_emu/utils/DiskShaderCacheProgress$LoadCallbackStage;II)V");
+            s_disk_cache_progress_class, "loadProgress",
+            "(Lorg/citra/citra_emu/utils/DiskShaderCacheProgress$LoadCallbackStage;II)V");
     s_compress_progress_method =
-        env->GetStaticMethodID(s_native_library_class, "onCompressProgress", "(JJ)V");
+            env->GetStaticMethodID(s_native_library_class, "onCompressProgress", "(JJ)V");
     // Initialize LoadCallbackStage map
     const auto to_java_load_callback_stage = [env,
-                                              load_callback_stage_class](const std::string& stage) {
+            load_callback_stage_class](const std::string& stage) {
         return env->NewGlobalRef(env->GetStaticObjectField(
-            load_callback_stage_class,
-            env->GetStaticFieldID(load_callback_stage_class, stage.c_str(),
-                                  "Lorg/citra/citra_emu/utils/"
-                                  "DiskShaderCacheProgress$LoadCallbackStage;")));
+                load_callback_stage_class,
+                env->GetStaticFieldID(load_callback_stage_class, stage.c_str(),
+                                      "Lorg/citra/citra_emu/utils/"
+                                      "DiskShaderCacheProgress$LoadCallbackStage;")));
     };
     s_java_load_callback_stages.emplace(VideoCore::LoadCallbackStage::Prepare,
                                         to_java_load_callback_stage("Prepare"));
@@ -233,18 +235,18 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
     // CIA Install
     s_cia_install_helper_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("org/citra/citra_emu/utils/CiaInstallWorker")));
+            env->NewGlobalRef(env->FindClass("org/citra/citra_emu/utils/CiaInstallWorker")));
     s_cia_install_helper_set_progress =
-        env->GetMethodID(s_cia_install_helper_class, "setProgressCallback", "(II)V");
+            env->GetMethodID(s_cia_install_helper_class, "setProgressCallback", "(II)V");
     // Initialize CIA InstallStatus map
     jclass cia_install_status_class =
-        env->FindClass("org/citra/citra_emu/NativeLibrary$InstallStatus");
+            env->FindClass("org/citra/citra_emu/NativeLibrary$InstallStatus");
     const auto to_java_cia_install_status = [env,
-                                             cia_install_status_class](const std::string& stage) {
+            cia_install_status_class](const std::string& stage) {
         return env->NewGlobalRef(env->GetStaticObjectField(
-            cia_install_status_class, env->GetStaticFieldID(cia_install_status_class, stage.c_str(),
-                                                            "Lorg/citra/citra_emu/"
-                                                            "NativeLibrary$InstallStatus;")));
+                cia_install_status_class, env->GetStaticFieldID(cia_install_status_class, stage.c_str(),
+                                                                "Lorg/citra/citra_emu/"
+                                                                "NativeLibrary$InstallStatus;")));
     };
     s_java_cia_install_status.emplace(Service::AM::InstallStatus::Success,
                                       to_java_cia_install_status("Success"));

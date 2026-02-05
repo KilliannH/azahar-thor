@@ -66,6 +66,8 @@ add_library(citra_common STATIC
     assert.h
     atomic_ops.h
     detached_tasks.cpp
+    cpu_affinity.cpp
+    cpu_affinity.h
     detached_tasks.h
     bit_field.h
     bit_set.h

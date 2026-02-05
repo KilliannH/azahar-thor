@@ -214,6 +214,35 @@ if (ENABLE_NATIVE_OPTIMIZATION)
     endif()
 endif()
 
+# Optimisations pour Snapdragon 8 Gen 2 / ARM64
+if(ANDROID AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+    message(STATUS "Applying Snapdragon 8 Gen 2 optimizations")
+
+    # Optimisations de base
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+
+    # Architecture ARM spécifique (ARMv8.2-a avec extensions)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8.2-a+fp16+dotprod+crypto")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.2-a+fp16+dotprod+crypto")
+
+    # Optimisations agressives
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto -ffast-math")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto -ffast-math")
+
+    # Optimisations additionnelles
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fomit-frame-pointer")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
+
+    # Linker optimizations
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
+
+    # Désactiver Qt pour Android
+    set(ENABLE_QT OFF CACHE BOOL "Disable Qt frontend for Android" FORCE)
+    set(ENABLE_QT_TRANSLATION OFF CACHE BOOL "Disable Qt translations" FORCE)
+endif()
+
 # Sanity check : Check that all submodules are present
 # =======================================================================
 

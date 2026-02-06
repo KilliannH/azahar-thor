@@ -85,8 +85,9 @@ public:
         return pop_count;
     }
 
-    std::vector<T> Pop(std::size_t max_slots = ~std::size_t(0)) {
-        std::vector<T> out(std::min(max_slots, capacity) * granularity);
+    template <typename Allocator = std::allocator<T>>
+    std::vector<T, Allocator> Pop(std::size_t max_slots = ~std::size_t(0)) {
+        std::vector<T, Allocator> out(std::min(max_slots, capacity) * granularity);
         const std::size_t count = Pop(out.data(), out.size() / granularity);
         out.resize(count * granularity);
         return out;

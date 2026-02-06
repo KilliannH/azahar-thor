@@ -14,6 +14,7 @@
 
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/unordered_map.hpp>
+#include "common/aligned_allocator.h"
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
@@ -49,6 +50,8 @@ namespace Common::Compression {
  */
 [[nodiscard]] std::vector<u8> DecompressDataZSTD(std::span<const u8> compressed);
 
+[[nodiscard]] std::vector<u8, Common::AlignedAllocator<u8>>
+    DecompressDataZSTDAligned(std::span<const u8> compressed);
 } // namespace Common::Compression
 
 namespace FileUtil {

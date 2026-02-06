@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <neaacdec.h>
+#include "common/aligned_allocator.h"
 #include "audio_core/hle/aac_decoder.h"
 
 namespace AudioCore::HLE {
@@ -109,7 +110,7 @@ BinaryMessage AACDecoder::Decode(const BinaryMessage& request) {
         data_len -= init_result;
     }
 
-    std::array<std::vector<s16>, 2> out_streams;
+    std::array<std::vector<s16, Common::AlignedAllocator<s16>>, 2> out_streams;
 
     while (data_len > 0) {
         NeAACDecFrameInfo frame_info;

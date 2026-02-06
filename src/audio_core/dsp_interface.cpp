@@ -8,6 +8,7 @@
 #include "audio_core/sink_details.h"
 #include "common/assert.h"
 #include "common/settings.h"
+#include "common/aligned_allocator.h"
 #include "core/core.h"
 #include "core/dumping/backend.h"
 
@@ -74,7 +75,8 @@ void DspInterface::OutputCallback(s16* buffer, std::size_t num_frames) {
 
     std::size_t frames_written = 0;
     if (performing_time_stretching) {
-        const std::vector<s16> in{fifo.Pop()};
+        const std::vector<s16, Common::AlignedAllocator<s16>> in =
+                fifo.Pop<Common::AlignedAllocator<s16>>();
         const std::size_t num_in{in.size() / 2};
         frames_written = time_stretcher.Process(in.data(), num_in, buffer, num_frames);
     } else {

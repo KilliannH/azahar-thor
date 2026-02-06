@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/alignment.h"
+#include "common/aligned_allocator.h"
 #include "video_core/custom_textures/material.h"
 #include "video_core/rasterizer_cache/surface_base.h"
 #include "video_core/texture/texture_decode.h"
@@ -22,7 +23,7 @@ bool SurfaceBase::CanFill(const SurfaceParams& dest_surface, SurfaceInterval fil
         if (fill_size * 8 != dest_surface.GetFormatBpp()) {
             // Check if bits repeat for our fill_size
             const u32 dest_bytes_per_pixel = std::max(dest_surface.GetFormatBpp() / 8, 1u);
-            std::vector<u8> fill_test(fill_size * dest_bytes_per_pixel);
+            std::vector<u8, Common::AlignedAllocator<u8>> fill_test(fill_size * dest_bytes_per_pixel);
 
             for (u32 i = 0; i < dest_bytes_per_pixel; ++i) {
                 std::memcpy(&fill_test[i * fill_size], &fill_data[0], fill_size);

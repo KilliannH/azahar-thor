@@ -10,6 +10,7 @@
 #include <fmt/format.h>
 
 #include "common/common_paths.h"
+#include "common/aligned_allocator.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -203,11 +204,11 @@ ShaderDiskCache::LoadPrecompiled(bool compressed) {
 std::optional<std::pair<std::unordered_map<u64, ShaderDiskCacheDecompiled>, ShaderDumpsMap>>
 ShaderDiskCache::LoadPrecompiledFile(FileUtil::IOFile& file, bool compressed) {
     // Read compressed file from disk and decompress to virtual precompiled cache file
-    std::vector<u8> precompiled_file(file.GetSize());
+    std::vector<u8, Common::AlignedAllocator<u8>> precompiled_file(file.GetSize());
     file.ReadBytes(precompiled_file.data(), precompiled_file.size());
     if (compressed) {
-        const std::vector<u8> decompressed =
-            Common::Compression::DecompressDataZSTD(precompiled_file);
+    auto decompressed =
+            Common::Compression::DecompressDataZSTDAligned(std::span<const u8>(precompiled_file.data(), precompiled_file.size()));
         if (decompressed.empty()) {
             LOG_ERROR(Render_OpenGL, "Could not decompress precompiled shader cache.");
             return std::nullopt;
@@ -402,7 +403,7 @@ void ShaderDiskCache::SaveDump(u64 unique_identifier, GLuint program) {
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binary_length);
 
     GLenum binary_format{};
-    std::vector<u8> binary(binary_length);
+    std::vector<u8, Common::AlignedAllocator<u8>> binary(binary_length);
     glGetProgramBinary(program, binary_length, nullptr, &binary_format, binary.data());
 
     if (!SaveObjectToPrecompiled(static_cast<u32>(PrecompiledEntryKind::Dump)) ||
@@ -425,7 +426,7 @@ void ShaderDiskCache::SaveDumpToFile(u64 unique_identifier, GLuint program, bool
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binary_length);
 
     GLenum binary_format{};
-    std::vector<u8> binary(binary_length);
+    std::vector<u8, Common::AlignedAllocator<u8>> binary(binary_length);
     glGetProgramBinary(program, binary_length, nullptr, &binary_format, binary.data());
 
     if (precompiled_file.WriteObject(static_cast<u32>(PrecompiledEntryKind::Dump)) != 1 ||

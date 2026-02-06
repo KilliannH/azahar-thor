@@ -12,6 +12,7 @@
 #include "common/microprofile.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
+#include "common/aligned_allocator.h"
 #include "core/memory.h"
 #include "video_core/custom_textures/custom_tex_manager.h"
 #include "video_core/pica/regs_external.h"
@@ -1051,7 +1052,8 @@ u64 RasterizerCache<T>::ComputeHash(const SurfaceParams& load_info, std::span<u8
         const u32 width = load_info.width;
         const u32 height = load_info.height;
         const u32 bpp = GetFormatBytesPerPixel(load_info.pixel_format);
-        auto decoded = std::vector<u8>(width * height * bpp);
+        auto decoded = std::vector<u8, Common::AlignedAllocator<u8>>(width * height * bpp);
+
         DecodeTexture(load_info, load_info.addr, load_info.end, upload_data, decoded, false);
         return Common::ComputeHash64<Common::HashAlgo64::CityHash>(decoded.data(), decoded.size());
     } else {

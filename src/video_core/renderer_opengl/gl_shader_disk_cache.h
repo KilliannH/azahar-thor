@@ -16,6 +16,7 @@
 
 #include "common/common_types.h"
 #include "common/file_util.h"
+#include "common/aligned_allocator.h"
 #include "video_core/pica/regs_internal.h"
 #include "video_core/shader/generator/shader_gen.h"
 
@@ -82,7 +83,7 @@ struct ShaderDiskCacheDecompiled {
 /// Contains an OpenGL dumped binary program
 struct ShaderDiskCacheDump {
     GLenum binary_format;
-    std::vector<u8> binary;
+    std::vector<u8, Common::AlignedAllocator<u8>> binary;
 };
 
 class ShaderDiskCache {
@@ -206,7 +207,7 @@ private:
 
     // Stores whole precompiled cache which will be read from or saved to the precompiled cache
     // file
-    std::vector<u8> decompressed_precompiled_cache;
+    std::vector<u8, Common::AlignedAllocator<u8>> decompressed_precompiled_cache;
     // Stores the current offset of the precompiled cache file for IO purposes
     std::size_t decompressed_precompiled_cache_offset = 0;
 

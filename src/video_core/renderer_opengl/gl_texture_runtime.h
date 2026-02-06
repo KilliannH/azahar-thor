@@ -8,6 +8,7 @@
 #include "video_core/rasterizer_cache/rasterizer_cache_base.h"
 #include "video_core/rasterizer_cache/surface_base.h"
 #include "video_core/renderer_opengl/gl_blit_helper.h"
+#include "common/aligned_allocator.h"
 
 namespace VideoCore {
 struct Material;
@@ -90,7 +91,7 @@ private:
 private:
     const Driver& driver;
     BlitHelper blit_helper;
-    std::vector<u8> staging_buffer;
+    std::vector<u8, Common::AlignedAllocator<u8>> staging_buffer;
     std::array<OGLFramebuffer, 3> draw_fbos;
     std::array<OGLFramebuffer, 3> read_fbos;
 };

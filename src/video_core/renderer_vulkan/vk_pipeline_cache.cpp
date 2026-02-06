@@ -10,6 +10,7 @@
 #include "common/microprofile.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
+#include "common/aligned_allocator.h"
 #include "core/core.h"
 #include "core/loader/loader.h"
 #include "video_core/pica/shader_setup.h"
@@ -176,7 +177,7 @@ void PipelineCache::LoadDiskCache(const std::atomic_bool& stop_loading,
     const auto cache_file_path =
         fmt::format("{}{:016X}-{:X}{:X}.bin", cache_dir, program_id, vendor_id, device_id);
 
-    std::vector<u8> cache_data;
+    std::vector<u8, Common::AlignedAllocator<u8>> cache_data;
     FileUtil::IOFile cache_file{cache_file_path, "rb"};
 
     if (!cache_file.IsOpen()) {

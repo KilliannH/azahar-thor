@@ -6,6 +6,7 @@
 #include "common/color.h"
 #include "common/logging/log.h"
 #include "common/swap.h"
+#include "common/aligned_allocator.h"
 #include "common/vector_math.h"
 #include "video_core/pica/regs_texturing.h"
 #include "video_core/texture/etc1.h"
@@ -67,6 +68,12 @@ Common::Vec4<u8> LookupTexture(const u8* source, unsigned int x, unsigned int y,
 
     const u8* line = source + coarse_y * info.stride;
     const u8* tile = line + coarse_x * CalculateTileSize(info.format);
+
+    // AJOUTER : Prefetch la prochaine tile (accès séquentiel probable)
+    const std::size_t tile_size = CalculateTileSize(info.format);
+    if (tile_size > 0) {
+        Common::PrefetchCacheLine(tile + tile_size);
+    }
     return LookupTexelInTile(tile, fine_x, fine_y, info, disable_alpha);
 }
 

@@ -54,6 +54,7 @@
 #include "video_core/gpu.h"
 #include "video_core/renderer_base.h"
 #include "common/cpu_affinity.h"
+#include "common/thread_pool.h"
 
 namespace Core {
 
@@ -76,7 +77,10 @@ Core::Timing& Global() {
 
 System::System() : movie{*this}, cheat_engine{*this} {}
 
-System::~System() = default;
+System::~System() {
+    // Shutdown le thread pool
+    Common::ShutdownThreadPool();
+}
 
 System::ResultStatus System::RunLoop(bool tight_loop) {
     Common::SetBigCoreAffinity();
@@ -512,6 +516,8 @@ void System::Reschedule() {
 System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
                                   Frontend::EmuWindow* secondary_window,
                                   Kernel::MemoryMode memory_mode, u32 num_cores) {
+    // Initialiser le thread pool au démarrage
+    Common::InitializeThreadPool(3);  // 3 threads pour 8 Gen 2
     LOG_DEBUG(HW_Memory, "initialized OK");
 
     memory = std::make_unique<Memory::MemorySystem>(*this);

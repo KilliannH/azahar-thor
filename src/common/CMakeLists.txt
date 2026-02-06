@@ -69,6 +69,8 @@ add_library(citra_common STATIC
     cpu_affinity.cpp
     cpu_affinity.h
     aligned_allocator.h
+    thread_pool.h
+    thread_pool.cpp
     detached_tasks.h
     bit_field.h
     bit_set.h

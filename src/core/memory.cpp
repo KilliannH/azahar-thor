@@ -14,6 +14,7 @@
 #include "common/logging/log.h"
 #include "common/settings.h"
 #include "common/swap.h"
+#include "common/aligned_allocator.h"
 #include "core/arm/arm_interface.h"
 #include "core/core.h"
 #include "core/global.h"
@@ -159,6 +160,10 @@ public:
     template <bool UNSAFE>
     void ReadBlockImpl(const Kernel::Process& process, const VAddr src_addr, void* dest_buffer,
                        const std::size_t size) {
+        // Prefetch toute la plage si le pointeur est valide
+        if (auto* src_ptr = GetPointerForRasterizerCache(src_addr)) {
+            Common::PrefetchRange(src_ptr, size);
+        }
         auto& page_table = *process.vm_manager.page_table;
 
         std::size_t remaining_size = size;

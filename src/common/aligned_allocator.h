@@ -100,4 +100,45 @@ namespace Common {
  */
 #define CACHE_LINE_ALIGNED alignas(64)
 
+/**
+ * Prefetch data into CPU cache
+ * Hints the CPU to load data before it's actually needed
+ * @param addr Address to prefetch
+ * @param rw 0 for read, 1 for write
+ * @param locality 0-3, higher = keep in cache longer
+ */
+    inline void Prefetch(const void* addr, int rw = 0, int locality = 3) {
+#if defined(__GNUC__) || defined(__clang__)
+        __builtin_prefetch(addr, rw, locality);
+#elif defined(_MSC_VER)
+        #include <xmmintrin.h>
+    _mm_prefetch(static_cast<const char*>(addr), _MM_HINT_T0);
+#else
+        // No-op on unsupported compilers
+        (void)addr;
+        (void)rw;
+        (void)locality;
+#endif
+    }
+
+/**
+ * Prefetch a cache line worth of data (64 bytes for ARM)
+ */
+    inline void PrefetchCacheLine(const void* addr) {
+        Prefetch(addr, 0, 3);
+    }
+
+/**
+ * Prefetch multiple cache lines
+ * Useful for prefetching large memory regions before processing
+ */
+    inline void PrefetchRange(const void* start, size_t size) {
+        constexpr size_t cache_line_size = 64;
+        const char* ptr = static_cast<const char*>(start);
+        const char* end = ptr + size;
+
+        for (; ptr < end; ptr += cache_line_size) {
+            Prefetch(ptr);
+        }
+    }
 }

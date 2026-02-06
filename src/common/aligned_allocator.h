@@ -104,20 +104,19 @@ namespace Common {
  * Prefetch data into CPU cache
  * Hints the CPU to load data before it's actually needed
  * @param addr Address to prefetch
- * @param rw 0 for read, 1 for write
- * @param locality 0-3, higher = keep in cache longer
+ * @tparam RW 0 for read, 1 for write
+ * @tparam Locality 0-3, higher = keep in cache longer
  */
-    inline void Prefetch(const void* addr, int rw = 0, int locality = 3) {
+    template<int RW = 0, int Locality = 3>
+    inline void Prefetch(const void* addr) {
 #if defined(__GNUC__) || defined(__clang__)
-        __builtin_prefetch(addr, rw, locality);
+        __builtin_prefetch(addr, RW, Locality);
 #elif defined(_MSC_VER)
         #include <xmmintrin.h>
     _mm_prefetch(static_cast<const char*>(addr), _MM_HINT_T0);
 #else
-        // No-op on unsupported compilers
-        (void)addr;
-        (void)rw;
-        (void)locality;
+    // No-op on unsupported compilers
+    (void)addr;
 #endif
     }
 
@@ -125,7 +124,7 @@ namespace Common {
  * Prefetch a cache line worth of data (64 bytes for ARM)
  */
     inline void PrefetchCacheLine(const void* addr) {
-        Prefetch(addr, 0, 3);
+        Prefetch<0, 3>(addr);
     }
 
 /**
@@ -138,7 +137,7 @@ namespace Common {
         const char* end = ptr + size;
 
         for (; ptr < end; ptr += cache_line_size) {
-            Prefetch(ptr);
+            Prefetch<0, 3>(ptr);
         }
     }
 }

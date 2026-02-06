@@ -161,8 +161,9 @@ public:
     void ReadBlockImpl(const Kernel::Process& process, const VAddr src_addr, void* dest_buffer,
                        const std::size_t size) {
         // Prefetch toute la plage si le pointeur est valide
-        if (auto* src_ptr = GetPointerForRasterizerCache(src_addr)) {
-            Common::PrefetchRange(src_ptr, size);
+        auto src_ptr = GetPointerForRasterizerCache(src_addr);
+        if (src_ptr) {
+            Common::PrefetchRange(src_ptr.GetPtr(), size);
         }
         auto& page_table = *process.vm_manager.page_table;
 
@@ -789,43 +790,85 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
 }
 
 u8 MemorySystem::Read8(const VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u8>(impl->current_page_table, addr);
 }
 
 u8 MemorySystem::Read8(const Kernel::Process& process, VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u8>(process.vm_manager.page_table, addr);
 }
 
 u16 MemorySystem::Read16(const VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u16_le>(impl->current_page_table, addr);
 }
 
 u16 MemorySystem::Read16(const Kernel::Process& process, VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u16_le>(process.vm_manager.page_table, addr);
 }
 
 u32 MemorySystem::Read32(const VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u32_le>(impl->current_page_table, addr);
 }
 
 u32 MemorySystem::Read32(const Kernel::Process& process, VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u32_le>(process.vm_manager.page_table, addr);
 }
 
 u64 MemorySystem::Read64(const VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u64_le>(impl->current_page_table, addr);
 }
 
 u64 MemorySystem::Read64(const Kernel::Process& process, VAddr addr) {
+    auto ptr = GetPointerForRasterizerCache(addr + 64);
+    if (ptr) {
+        Common::PrefetchCacheLine(ptr.GetPtr());
+    }
     return Read<u64_le>(process.vm_manager.page_table, addr);
 }
 
 void MemorySystem::ReadBlock(const Kernel::Process& process, const VAddr src_addr,
                              void* dest_buffer, const std::size_t size) {
+    auto src_ptr = GetPointerForRasterizerCache(src_addr);
+    if (src_ptr) {
+        Common::PrefetchRange(src_ptr.GetPtr(), size);
+    }
+
     return impl->ReadBlockImpl<false>(process, src_addr, dest_buffer, size);
 }
 
 void MemorySystem::ReadBlock(VAddr src_addr, void* dest_buffer, std::size_t size) {
+    auto src_ptr = GetPointerForRasterizerCache(src_addr);
+    if (src_ptr) {
+        Common::PrefetchRange(src_ptr.GetPtr(), size);
+    }
+
     const auto& process = *impl->system.Kernel().GetCurrentProcess();
     return impl->ReadBlockImpl<false>(process, src_addr, dest_buffer, size);
 }

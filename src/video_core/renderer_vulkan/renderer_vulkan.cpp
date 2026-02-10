@@ -22,6 +22,7 @@
 #include "common/cpu_affinity.h"
 
 #include <vk_mem_alloc.h>
+#include <atomic>
 
 #ifdef __APPLE__
 #include "common/apple_utils.h"
@@ -910,10 +911,9 @@ void RendererVulkan::DrawScreens(Frame* frame, const Layout::FramebufferLayout& 
 }
 
 void RendererVulkan::SwapBuffers() {
-    static bool affinity_set = false;
-    if (!affinity_set) {
-        Common::SetBigCoreAffinity(); // <-- AJOUTER ICI
-        affinity_set = true;
+    static std::atomic<bool> affinity_set{false};
+    if (!affinity_set.exchange(true)) {
+        Common::SetBigCoreAffinity();
     }
     system.perf_stats->StartSwap();
     const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();

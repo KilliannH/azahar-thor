@@ -8,6 +8,10 @@
 #include <cstdlib>
 #include <new>
 
+#if defined(_MSC_VER)
+#include <xmmintrin.h>
+#endif
+
 namespace Common {
 
 /**
@@ -112,7 +116,6 @@ namespace Common {
 #if defined(__GNUC__) || defined(__clang__)
         __builtin_prefetch(addr, RW, Locality);
 #elif defined(_MSC_VER)
-        #include <xmmintrin.h>
     _mm_prefetch(static_cast<const char*>(addr), _MM_HINT_T0);
 #else
     // No-op on unsupported compilers

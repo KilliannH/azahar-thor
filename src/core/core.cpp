@@ -83,7 +83,6 @@ System::~System() {
 }
 
 System::ResultStatus System::RunLoop(bool tight_loop) {
-    Common::SetBigCoreAffinity();
     status = ResultStatus::Success;
     if (!IsPoweredOn()) {
         return ResultStatus::ErrorNotInitialized;
@@ -518,6 +517,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
                                   Kernel::MemoryMode memory_mode, u32 num_cores) {
     // Initialiser le thread pool au démarrage
     Common::InitializeThreadPool(3);  // 3 threads pour 8 Gen 2
+    Common::SetBigCoreAffinity();     // Pin le thread principal aux big cores (une seule fois)
     LOG_DEBUG(HW_Memory, "initialized OK");
 
     memory = std::make_unique<Memory::MemorySystem>(*this);

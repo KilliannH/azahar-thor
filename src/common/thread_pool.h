@@ -23,7 +23,7 @@ namespace Common {
  */
     class ThreadPool {
     public:
-        explicit ThreadPool(size_t num_threads = 3) : stop(false) {
+        explicit ThreadPool(size_t num_threads = 3) : stop(false), active_tasks(0) {
             LOG_INFO(Common, "Creating thread pool with {} workers", num_threads);
 
             for (size_t i = 0; i < num_threads; ++i) {
@@ -31,6 +31,8 @@ namespace Common {
 #ifdef __ANDROID__
                     SetBigCoreAffinity();
                 LOG_DEBUG(Common, "Thread pool worker {} pinned to big cores", i);
+#else
+                    (void)i;
 #endif
 
                     while (true) {
@@ -48,9 +50,16 @@ namespace Common {
 
                             task = std::move(tasks.front());
                             tasks.pop();
+                            ++active_tasks;
                         }
 
                         task();
+
+                        {
+                            std::lock_guard<std::mutex> lock(queue_mutex);
+                            --active_tasks;
+                        }
+                        done_condition.notify_all();
                     }
                 });
             }
@@ -82,15 +91,15 @@ namespace Common {
             return res;
         }
 
+        /**
+         * Block until all enqueued tasks have completed.
+         * Uses a condition variable instead of busy-waiting.
+         */
         void WaitForTasks() {
-            while (true) {
-                std::unique_lock<std::mutex> lock(queue_mutex);
-                if (tasks.empty()) {
-                    break;
-                }
-                lock.unlock();
-                std::this_thread::yield();
-            }
+            std::unique_lock<std::mutex> lock(queue_mutex);
+            done_condition.wait(lock, [this] {
+                return tasks.empty() && active_tasks == 0;
+            });
         }
 
         size_t GetThreadCount() const {
@@ -119,7 +128,9 @@ namespace Common {
         std::queue<std::function<void()>> tasks;
         std::mutex queue_mutex;
         std::condition_variable condition;
+        std::condition_variable done_condition;
         std::atomic<bool> stop;
+        int active_tasks;
     };
 
 /**

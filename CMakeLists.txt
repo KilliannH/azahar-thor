@@ -227,8 +227,8 @@ if(ANDROID AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.2-a+fp16+dotprod+crypto")
 
     # Optimisations agressives
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto -ffast-math")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto -ffast-math")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto -fno-math-errno -fno-signed-zeros -freciprocal-math -fno-trapping-math")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto -fno-math-errno -fno-signed-zeros -freciprocal-math -fno-trapping-math")
 
     # Optimisations additionnelles
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fomit-frame-pointer")

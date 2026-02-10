@@ -82,18 +82,26 @@ android {
                 arguments += listOf(
                     "-DANDROID_ARM_NEON=TRUE",
                     "-DANDROID_STL=c++_shared",
-                    "-DCMAKE_BUILD_TYPE=Release"
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DENABLE_SDL2=0",
+                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
                 )
 
                 cFlags += listOf(
                     "-O3",
-                    "-ffast-math",
+                    "-fno-math-errno",
+                    "-fno-signed-zeros",
+                    "-freciprocal-math",
+                    "-fno-trapping-math",
                     "-march=armv8.2-a+fp16+dotprod+crypto"
                 )
 
                 cppFlags += listOf(
                     "-O3",
-                    "-ffast-math",
+                    "-fno-math-errno",
+                    "-fno-signed-zeros",
+                    "-freciprocal-math",
+                    "-fno-trapping-math",
                     "-march=armv8.2-a+fp16+dotprod+crypto"
                 )
             }
@@ -148,19 +156,6 @@ android {
             }
         }
 
-        //=======================================================
-        // OPTIMISATION 4 : Exclusion des architectures inutiles
-        //=======================================================
-        packaging {
-            resources {
-                excludes += listOf(
-                    "lib/armeabi-v7a/**",
-                    "lib/x86/**",
-                    "lib/x86_64/**"
-                )
-            }
-        }
-
         // builds a release build that doesn't need signing
         // Attaches 'debug' suffix to version and package name, allowing installation alongside the release build.
         register("relWithDebInfo") {
@@ -202,6 +197,17 @@ android {
             versionNameSuffix = "-debug"
             isDebuggable = true
             isJniDebuggable = true
+        }
+    }
+
+    // Exclusion des architectures inutiles (arm64-v8a uniquement)
+    packaging {
+        resources {
+            excludes += listOf(
+                "lib/armeabi-v7a/**",
+                "lib/x86/**",
+                "lib/x86_64/**"
+            )
         }
     }
 

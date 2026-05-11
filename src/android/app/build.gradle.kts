@@ -24,12 +24,11 @@ val abiFilter = listOf("arm64-v8a", "x86_64")
 
 val downloadedJniLibsPath = "${layout.buildDirectory.get().asFile.path}/downloadedJniLibs"
 
-@Suppress("UnstableApiUsage")
 android {
     namespace = "org.citra.citra_emu"
 
     compileSdkVersion = "android-35"
-    ndkVersion = "27.1.12297006"
+    ndkVersion = "27.3.13750724"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -70,39 +69,17 @@ android {
         versionName = getGitVersion()
 
         ndk {
-            //=======================================================
-            // OPTIMISATION 1 : Uniquement ARM64 pour le 8 Gen 2
-            //=======================================================
-            abiFilters.clear()
-            abiFilters += listOf("arm64-v8a")
+            //noinspection ChromeOsAbiSupport
+            abiFilters += abiFilter
         }
 
         externalNativeBuild {
             cmake {
-                arguments += listOf(
-                    "-DANDROID_ARM_NEON=TRUE",
-                    "-DANDROID_STL=c++_shared",
-                    "-DCMAKE_BUILD_TYPE=Release",
-                    "-DENABLE_SDL2=0",
-                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
-                )
-
-                cFlags += listOf(
-                    "-O3",
-                    "-fno-math-errno",
-                    "-fno-signed-zeros",
-                    "-freciprocal-math",
-                    "-fno-trapping-math",
-                    "-march=armv8.2-a+fp16+dotprod+crypto"
-                )
-
-                cppFlags += listOf(
-                    "-O3",
-                    "-fno-math-errno",
-                    "-fno-signed-zeros",
-                    "-freciprocal-math",
-                    "-fno-trapping-math",
-                    "-march=armv8.2-a+fp16+dotprod+crypto"
+                arguments(
+                    "-DENABLE_QT=0", // Don't use QT
+                    "-DENABLE_SDL2=0", // Don't use SDL
+                    "-DANDROID_ARM_NEON=true", // cryptopp requires Neon to work
+                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON" // Support Android 15 16KiB page sizes
                 )
             }
         }
@@ -138,22 +115,6 @@ android {
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
-            //=======================================================
-            // OPTIMISATION 3 : Pas de symboles debug en release
-            //=======================================================
-            ndk {
-                debugSymbolLevel = "NONE"
-            }
-        }
-
-        // OPTIONNEL : Build type pour profiling
-        create("profile") {
-            initWith(getByName("release"))
-            isDebuggable = true
-            isProfileable = true
-            ndk {
-                debugSymbolLevel = "SYMBOL_TABLE"
-            }
         }
 
         // builds a release build that doesn't need signing
@@ -197,17 +158,6 @@ android {
             versionNameSuffix = "-debug"
             isDebuggable = true
             isJniDebuggable = true
-        }
-    }
-
-    // Exclusion des architectures inutiles (arm64-v8a uniquement)
-    packaging {
-        resources {
-            excludes += listOf(
-                "lib/armeabi-v7a/**",
-                "lib/x86/**",
-                "lib/x86_64/**"
-            )
         }
     }
 

@@ -3,7 +3,6 @@
 
     <!-- Home Strings -->
     <string name="grid_menu_core_settings">Innstillinger</string>
-    <!-- Input related strings -->
     <string name="controller_circlepad">Gliplate</string>
     <string name="controller_c">C-Spak</string>
     <string name="controller_triggers">Utløser</string>
@@ -76,7 +75,7 @@
     <string name="emulation_configure_controls">Konfigurer Kontroller</string>
     <string name="emulation_edit_layout">Endre Utseende </string>
     <string name="emulation_done">Ferdig</string>
-    <string name="emulation_toggle_controls">Veksle Kontroller</string>
+    <string name="emulation_toggle_controls">Bytt Kontrollene</string>
     <string name="emulation_control_scale">Juster Skala</string>
     <string name="emulation_open_settings">Åpne Innstillinger</string>
     <string name="emulation_switch_screen_layout">Landskap Skjermoppsett</string>
